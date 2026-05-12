@@ -1,0 +1,71 @@
+
+import Entity.Bici;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.LocalBean;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import java.util.List;
+
+/**
+ *
+ * @author User
+ */
+@Stateless
+@LocalBean
+@WebService(serviceName="BiciWS")
+public class BiciEJB implements BiciEJBRemote{
+
+    @PersistenceContext(unitName="EsamePU")
+    private EntityManager em;
+
+    @Override
+    public void aggiungi(Bici b) {
+        em.persist(b);
+    }
+
+    @Override
+    public Bici cercaPerId(Long id) {
+        return em.find(Bici.class, id);
+    }
+
+    @Override
+    public List<Bici> cercaTutti() {
+        return em.createNamedQuery("Bici.findAll",Bici.class).getResultList();
+    }
+
+    @Override
+    public List<Bici> cercaInVendita() {
+        return em.createNamedQuery("Bici.findInVendita",Bici.class).getResultList();
+    }
+
+    @Override
+    public void aggiornaStato(Long id, String stato) {
+        Bici b=cercaPerId(id);
+        if(b!=null){
+            b.setStato(stato);
+            em.merge(b);
+        }
+    }
+
+    @Override
+    public List<Bici> cercaPerAnno() {
+        return em.createNamedQuery("Bici.findByAnno",Bici.class).getResultList();
+    }
+
+    @Override
+    public void eliminaBiciByAnno() {
+        em.createNamedQuery("Bici.deleteByAnno").executeUpdate();  //aggiunto executeUpdate() per poter effettuare correttamente l'aggiornamento nel db
+    }
+    
+    @WebMethod(operationName="getInfo")
+    public String getInfo(Long id){
+        Bici b=cercaPerId(id);
+        if(b!=null){
+            return "nome "+b.getNome()+" anno produzione "+b.getAnnoProduzione();
+        }
+        return "nessuna bici trovata";   //aggiunta gestione in cui l'id inserito non esiste
+    }
+    
+}
