@@ -1,0 +1,27 @@
+
+/**
+ *
+ * @author User
+ */
+public class AlibertiBiciWSClient {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) throws Exception{
+        try{
+            biciwsclient.BiciWS service=new biciwsclient.BiciWS();
+            biciwsclient.BiciEJB port=service.getBiciEJBPort();
+
+            Long ids[]={1L,4L,100L};
+            for(Long id:ids){
+                System.out.println("Recupero Dati per ID: " + id);
+                String avviso=port.getInfo(id);
+                System.out.println(" "+avviso);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    
+}
