@@ -30,6 +30,30 @@ Per facilitare la revisione del codice, i componenti sono stati isolati per resp
 
 ---
 
+---
+
+## 📂 Struttura del progetto (Project Structure)
+L'intera soluzione è logicamente e fisicamente suddivisa in tre macro-progetti indipendenti, che simulano un ambiente di produzione reale:
+
+### 1. 🖥️ `Server` (The Core)
+Rappresenta il **Backend Enterprise**. È il cuore del middleware dove risiede la persistenza e la logica decisionale.
+* **Business Logic (EJB Stateless):** Gestisce le transazioni e garantisce thread-safety nell'accesso ai dati.
+* **Data Persistence (JPA):** Implementa il mapping ORM tra oggetti Java e il database relazionale. Utilizza `NamedQueries` pre-compilate per ottimizzare le prestazioni.
+* **Messaging (MDB):** Implementa un `MessageDrivenBean` che ascolta in modo non bloccante su un Topic JMS, permettendo aggiornamenti di stato asincroni.
+* **Service Exposure:** Pubblica i metodi di business sia tramite interfacce `@Remote` (per i client Java) sia tramite endpoint `@WebService` (SOAP).
+
+### 2. 📱 `Client` (RMI & JMS Producer)
+Un client "thick" (pesante) che interagisce con il server utilizzando protocolli nativi Java.
+* **JNDI Lookup:** Dimostra la capacità di localizzare servizi remoti nel Global Context dell'Application Server.
+* **JMS Integration:** Funge da *Producer*. Invia messaggi strutturati al server per segnalare eventi (es. la vendita di un asset) senza attendere la risposta del database, migliorando la reattività dell'interfaccia utente.
+
+### 3. 🌐 `WSClient` (Interoperability Client)
+Un client leggero che simula l'integrazione con sistemi di terze parti o legacy.
+* **SOAP Protocol:** Utilizza il protocollo XML-based per interrogare il server.
+* **Service Independence:** Non necessita delle classi del server per funzionare, dimostrando come il middleware possa comunicare con qualsiasi tecnologia esterna tramite standard aperti.
+
+---
+
 ## 🚀 Punti di Forza Tecnici
 1.  **Resilienza:** Gestione avanzata delle eccezioni nei processi asincroni per evitare il rollback dell'intero sistema.
 2.  **Transazionalità:** Utilizzo di `@PersistenceContext` e gestione automatica delle transazioni tipica degli EJB.
