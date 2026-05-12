@@ -1,0 +1,28 @@
+
+import EJB.BiciEJB;
+import Entity.Bici;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+import jakarta.inject.Inject;
+
+/**
+ *
+ * @author User
+ */
+@Singleton
+@Startup
+public class PopulatorDB {
+    
+    @Inject
+    private BiciEJB ejb;
+    
+    @PostConstruct
+    public void init(){
+        ejb.aggiungi(new Bici("Bianchi","Shimano Ultegra",2008,"in vendita"));
+        ejb.aggiungi(new Bici("Pinarello Nytro","Shimano 105",2011,"in vendita"));
+        ejb.aggiungi(new Bici("Cervelo Soloist","Shimano 105",2016,"venduta"));
+        ejb.aggiungi(new Bici("Sava","Shimano 105",2023,"in vendita"));        
+    }
+    
+}
