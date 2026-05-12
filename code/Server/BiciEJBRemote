@@ -1,0 +1,20 @@
+
+import Entity.Bici;
+import jakarta.ejb.Remote;
+import java.util.List;
+
+/**
+ *
+ * @author User
+ */
+@Remote
+public interface BiciEJBRemote {
+    
+    public void aggiungi(Bici b);
+    public Bici cercaPerId(Long id);
+    List<Bici> cercaTutti();
+    List<Bici> cercaInVendita();
+    void aggiornaStato(Long id, String stato);
+    List<Bici> cercaPerAnno();
+    void eliminaBiciByAnno();
+}
