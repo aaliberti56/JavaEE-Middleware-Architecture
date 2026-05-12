@@ -1,0 +1,63 @@
+
+import EJB.BiciEJBRemote;
+import Entity.Bici;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSContext;
+import jakarta.jms.Topic;
+import java.util.*;
+import javax.naming.InitialContext;
+
+/**
+ *
+ * @author User
+ */
+public class BiciClient {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) throws Exception{  //aggiunta gestione eccezioni
+        InitialContext ctx=new InitialContext();
+        
+        System.out.println("Invocazione EJB");
+        BiciEJBRemote ejb = (BiciEJBRemote) ctx.lookup("java:global/AlibertiBiciServer/BiciEJB!EJB.BiciEJBRemote");
+        Scanner sc=new Scanner(System.in);
+        
+        System.out.println("Stampo le bici prodotte prima del 2010");
+        List<Bici> cercaAnno=ejb.cercaPerAnno();
+        for(Bici b: cercaAnno){
+            System.out.println(b.toString());
+        }
+        
+        System.out.println("Eliminazione bici prodotte prima del 2010");
+        ejb.eliminaBiciByAnno();
+        System.out.println("Eliminazione effettuata");
+        
+        System.out.println("Aggiorno lo stato della bici con id:4 da in vendita a venduta");
+        ejb.aggiornaStato(4L, "venduta");
+        System.out.println("Aggiornamento effettuato");
+        
+        System.out.println("PARTE JMS....");
+        ConnectionFactory cf=(ConnectionFactory) ctx.lookup("jms/javaee7/ConnectionFactory");
+        Topic topic=(Topic) ctx.lookup("jms/javaee7/Topic");
+        
+        System.out.println("Inserisci id da modificare");
+        Long id=sc.nextLong();
+        sc.nextLine();   //pulizia buffer
+        
+        System.out.println("Inserisci nuovo stato (in vendita o venduta)");
+        String stato=sc.nextLine();
+        if(!stato.equalsIgnoreCase("in vendita") && !stato.equalsIgnoreCase("venduta")){   //controllo inserimento stato inserito dall'utente
+            throw new Exception("errore inserimento stato");
+        }
+        
+        try(JMSContext jmsCtx=cf.createContext()){
+            Bici msg=new Bici();
+            msg.setId(id);
+            msg.setStato(stato);
+            jmsCtx.createProducer().send(topic,msg);
+            System.out.println("Messaggio spedito!!!");
+        }
+    }
+    
+}
