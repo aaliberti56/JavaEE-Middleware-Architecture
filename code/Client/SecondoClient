@@ -1,0 +1,44 @@
+
+import Entity.Bici;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSProducer;
+import jakarta.jms.Topic;
+import java.util.Scanner;
+import javax.naming.InitialContext;
+
+/**
+ *
+ * @author User
+ */
+public class SecondoClient {
+    public static void main(String[] args) throws Exception{
+        InitialContext ctx=new InitialContext();
+        Scanner sc=new Scanner(System.in);  //aggiunta dichiarazione
+        
+        ConnectionFactory cf=(ConnectionFactory) ctx.lookup("jms/javaee7/ConnectionFactory");
+        Topic topic=(Topic) ctx.lookup("jms/javaee7/Topic");
+        
+        System.out.println("Inserisci id da modificare");
+        Long id=sc.nextLong();
+        sc.nextLine();   //pulizia buffer
+        
+        System.out.println("Inserisci nuovo stato (in vendita o venduta)");
+        String stato=sc.nextLine();
+        if(!stato.equalsIgnoreCase("in vendita") && !stato.equalsIgnoreCase("venduta")){   //controllo inserimento stato inserito dall'utente
+            throw new Exception("errore inserimento stato");
+        }
+        
+        try(JMSContext jmsCtx=cf.createContext()){
+            Bici msg=new Bici();
+            msg.setId(id);
+            msg.setStato(stato);
+            JMSProducer producer=jmsCtx.createProducer();
+            producer.setDeliveryMode(1);  //modificato, impostando il valore 1 che indica DeliveryMode.NON_PERSISTENT
+            producer.setTimeToLive(1000);
+            producer.send(topic,msg);
+            System.out.println("Messaggio spedito dal secondo client!!!");
+        }
+    }
+    
+}
