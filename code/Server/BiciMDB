@@ -1,0 +1,41 @@
+
+import EJB.BiciEJB;
+import Entity.Bici;
+import jakarta.ejb.MessageDriven;
+import jakarta.inject.Inject;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
+
+/**
+ *
+ * @author User
+ */
+@MessageDriven(mappedName="jms/javaee7/Topic")
+public class BiciMDB implements MessageListener{
+
+    @Inject
+    private BiciEJB ejb;
+    
+    @Override
+    public void onMessage(Message msg) {
+        try{
+            boolean venduta=false;
+            Bici mdb=msg.getBody(Bici.class);
+            Long id=mdb.getId();
+            String stato=mdb.getStato();
+            Bici b=ejb.cercaPerId(id);
+            if(b!=null){   //aggiunto controllo per evitare di interrompere l'intero programma
+                if(b.getStato().equalsIgnoreCase("in vendita") && stato.equalsIgnoreCase("venduta")){
+                    venduta=true;
+                }
+            }
+            ejb.aggiornaStato(id, stato);
+            if(venduta){
+                System.out.println("Nuova bici venduta");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    
+}
