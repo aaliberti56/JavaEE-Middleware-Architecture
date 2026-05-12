@@ -1,0 +1,109 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package Entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Transient;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+
+/**
+ *
+ * @author User
+ */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@Entity
+@NamedQueries({
+    @NamedQuery(name="Bici.findInVendita",query="Select b From Bici b Where b.stato='in vendita'"),
+    @NamedQuery(name="Bici.findAll",query="Select b From Bici b"),
+    @NamedQuery(name="Bici.findByAnno",query="Select b From Bici b Where b.annoProduzione<2010"),
+    @NamedQuery(name="Bici.deleteByAnno",query="Delete From Bici b Where b.annoProduzione<2010") // modificata, poiche' la sintassi non era corretta
+})
+public class Bici implements Serializable {
+
+    private static final long serialVersionUID = 1L;  //modifica necessaria, poiché la classe implementa l'interfaccia Serializable; l'identificatore garantisce la coerenza della versione della classe durante la serializzazione tra i vari moduli (EJB, Client, MDB).
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private String nome;
+    private String cambio;
+    private int annoProduzione;
+    private String stato;
+    
+    @Transient
+    private int etaBici;
+
+    public Bici(){
+    }
+
+    public Bici(String nome, String cambio, int annoProduzione, String stato) {
+        this.nome = nome;
+        this.cambio = cambio;
+        this.annoProduzione = annoProduzione;
+        this.stato = stato;
+    }
+    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getCambio() {
+        return cambio;
+    }
+
+    public void setCambio(String cambio) {
+        this.cambio = cambio;
+    }
+
+    public int getAnnoProduzione() {
+        return annoProduzione;
+    }
+
+    public void setAnnoProduzione(int annoProduzione) {
+        this.annoProduzione = annoProduzione;
+    }
+
+    public String getStato() {
+        return stato;
+    }
+
+    public void setStato(String stato) {
+        this.stato = stato;
+    }
+    
+    public int getEtaBici(){
+        return 2026-this.annoProduzione;
+    }
+
+    public void setEtaBici(int etaBici) {
+        this.etaBici = etaBici;
+    }
+
+    @Override
+    public String toString() {
+        return "Bici{" + "id=" + id + ", nome=" + nome + ", cambio=" + cambio + ", annoProduzione=" + annoProduzione + ", stato=" + stato + ", etaBici=" + etaBici + '}';
+    }
+     
+}
